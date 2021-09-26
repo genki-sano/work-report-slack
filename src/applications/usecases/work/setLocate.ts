@@ -1,6 +1,10 @@
 import { IChatPostMessageGateway } from '@/applications/repositories/slack/chat/postMessage'
 import { IChatUpdateGateway } from '@/applications/repositories/slack/chat/update'
 import { IUsersSetProfileGateway } from '@/applications/repositories/slack/users/setProfile'
+import {
+  IUserStatusGateway,
+  UserStatusType,
+} from '@/applications/repositories/spreadsheet/userStatus'
 import { ACTION_GO_TO_LUNCH } from '@/constants/action'
 import { Profile } from '@/domains/profile'
 
@@ -8,15 +12,18 @@ export class WorkSetLocateUsacase {
   private readonly chatPostMessageRepos: IChatPostMessageGateway
   private readonly chatUpdateRepos: IChatUpdateGateway
   private readonly usersSetProfileRepos: IUsersSetProfileGateway
+  private readonly userStatusRepos: IUserStatusGateway
 
   constructor(
     chatPostMessageRepos: IChatPostMessageGateway,
     chatUpdateRepos: IChatUpdateGateway,
     usersSetProfileRepos: IUsersSetProfileGateway,
+    userStatusRepos: IUserStatusGateway,
   ) {
     this.chatPostMessageRepos = chatPostMessageRepos
     this.chatUpdateRepos = chatUpdateRepos
     this.usersSetProfileRepos = usersSetProfileRepos
+    this.userStatusRepos = userStatusRepos
   }
 
   public execute(
@@ -26,8 +33,14 @@ export class WorkSetLocateUsacase {
     messageTs: string,
   ) {
     // 対象のuserのステータスを選択された値に変更
-    const statusEmoji = selectValue === 'work-remotely' ? ':house:' : ':office:'
-    const statusText = selectValue === 'work-remotely' ? '在宅' : '出社'
+    const statusEmoji =
+      selectValue === 'work-remotely'
+        ? this.userStatusRepos.getIcon(UserStatusType.House)
+        : this.userStatusRepos.getIcon(UserStatusType.Office)
+    const statusText =
+      selectValue === 'work-remotely'
+        ? this.userStatusRepos.getText(UserStatusType.House)
+        : this.userStatusRepos.getText(UserStatusType.Office)
     const statusExpiration = 0
     const profile = new Profile(statusEmoji, statusText, statusExpiration)
     this.usersSetProfileRepos.execute({ profile }, userId)

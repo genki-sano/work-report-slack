@@ -2,6 +2,10 @@ import { IChatPostMessageGateway } from '@/applications/repositories/slack/chat/
 import { IChatUpdateGateway } from '@/applications/repositories/slack/chat/update'
 import { IUsersSetPresenceGateway } from '@/applications/repositories/slack/users/setPresence'
 import { IUsersSetProfileGateway } from '@/applications/repositories/slack/users/setProfile'
+import {
+  IUserStatusGateway,
+  UserStatusType,
+} from '@/applications/repositories/spreadsheet/userStatus'
 import { ACTION_COME_BACK_LUNCH, ACTION_END_WORK } from '@/constants/action'
 import { Profile } from '@/domains/profile'
 
@@ -10,17 +14,20 @@ export class LunchStartUsacase {
   private readonly chatUpdateRepos: IChatUpdateGateway
   private readonly usersSetPresenceRepos: IUsersSetPresenceGateway
   private readonly usersSetProfileRepos: IUsersSetProfileGateway
+  private readonly userStatusRepos: IUserStatusGateway
 
   constructor(
     chatPostMessageRepos: IChatPostMessageGateway,
     chatUpdateRepos: IChatUpdateGateway,
     usersSetPresenceRepos: IUsersSetPresenceGateway,
     usersSetProfileRepos: IUsersSetProfileGateway,
+    userStatusRepos: IUserStatusGateway,
   ) {
     this.chatPostMessageRepos = chatPostMessageRepos
     this.chatUpdateRepos = chatUpdateRepos
     this.usersSetPresenceRepos = usersSetPresenceRepos
     this.usersSetProfileRepos = usersSetProfileRepos
+    this.userStatusRepos = userStatusRepos
   }
 
   public execute(
@@ -33,8 +40,8 @@ export class LunchStartUsacase {
     this.usersSetPresenceRepos.execute({ presence: 'away' }, userId)
 
     // 対象のuserのステータスを離席中に変更
-    const statusEmoji = ':curry:'
-    const statusText = '離席中'
+    const statusEmoji = this.userStatusRepos.getIcon(UserStatusType.Away)
+    const statusText = this.userStatusRepos.getText(UserStatusType.Away)
     const statusExpiration = 0
     const profile = new Profile(statusEmoji, statusText, statusExpiration)
     this.usersSetProfileRepos.execute({ profile }, userId)

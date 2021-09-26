@@ -7,6 +7,7 @@ import {
 } from '@/constants/action'
 import { Config } from '@/infrastructures/config'
 import { SlackClient } from '@/infrastructures/slack/client'
+import { SpreadsheetClient } from '@/infrastructures/spreadsheet/client'
 import { LunchController } from '@/interfaces/controllers/lunch'
 import { WorkController } from '@/interfaces/controllers/work'
 import { SlashCommandPayloads } from '@/types/slack'
@@ -27,7 +28,9 @@ export const doPost = (
   // GASに設定した各種設定を取っておく
   const config = new Config()
   // Slack API への接続設定
-  const client = new SlackClient(config.slackBotToken)
+  const slackClient = new SlackClient(config.slackBotToken)
+  // Spreadsheet API への接続設定
+  const spreadsheetClient = new SpreadsheetClient(config.spreadsheetId)
 
   if (e.postData.type === 'application/json') {
     // Events API (イベント API / URL 検証リクエスト)
@@ -37,12 +40,17 @@ export const doPost = (
   if (e.postData.type === 'application/x-www-form-urlencoded') {
     if (typeof e.parameters.payload !== 'undefined') {
       // Interactivity & Shortcuts (ボタン操作やモーダル送信、ショートカットなど)
-      return executeInteractivityAndShortcuts(e, config, client)
+      return executeInteractivityAndShortcuts(
+        e,
+        config,
+        slackClient,
+        spreadsheetClient,
+      )
     }
 
     if (typeof e.parameters.command !== 'undefined') {
       // Slash Commands (スラッシュコマンドの実行)
-      return executeSlashCommands(e, config, client)
+      return executeSlashCommands(e, config, slackClient, spreadsheetClient)
     }
   }
 
@@ -84,7 +92,8 @@ const executeEventApi = (
  *
  * @param GoogleAppsScript.Events.DoPost e
  * @param Config config
- * @param SlackClient client
+ * @param SlackClient slackClient
+ * @param SpreadsheetClient spreadsheetClient
  * @returns GoogleAppsScript.Content.TextOutput
  *
  * @see https://api.slack.com/reference/interaction-payloads
@@ -92,7 +101,8 @@ const executeEventApi = (
 const executeInteractivityAndShortcuts = (
   e: GoogleAppsScript.Events.DoPost,
   config: Config,
-  client: SlackClient,
+  slackClient: SlackClient,
+  spreadsheetClient: SpreadsheetClient,
 ): GoogleAppsScript.Content.TextOutput => {
   const payload = JSON.parse(e.parameters.payload[0])
   // Verification Token の検証
@@ -119,25 +129,25 @@ const executeInteractivityAndShortcuts = (
       payload.actions[0].action_id === ACTION_WORK_REMOTELY ||
       payload.actions[0].action_id === ACTION_GO_TO_WORK
     ) {
-      const controller = new WorkController(client)
+      const controller = new WorkController(slackClient, spreadsheetClient)
       controller.setLocate(payload)
       return ContentService.createTextOutput('')
     }
 
     if (payload.actions[0].action_id === ACTION_GO_TO_LUNCH) {
-      const controller = new LunchController(client)
+      const controller = new LunchController(slackClient, spreadsheetClient)
       controller.start(payload)
       return ContentService.createTextOutput('')
     }
 
     if (payload.actions[0].action_id === ACTION_COME_BACK_LUNCH) {
-      const controller = new LunchController(client)
+      const controller = new LunchController(slackClient, spreadsheetClient)
       controller.end(payload)
       return ContentService.createTextOutput('')
     }
 
     if (payload.actions[0].action_id === ACTION_END_WORK) {
-      const controller = new WorkController(client)
+      const controller = new WorkController(slackClient, spreadsheetClient)
       controller.end(payload)
       return ContentService.createTextOutput('')
     }
@@ -163,7 +173,8 @@ const executeInteractivityAndShortcuts = (
  *
  * @param GoogleAppsScript.Events.DoPost e
  * @param Config config
- * @param SlackClient client
+ * @param SlackClient slackClient
+ * @param SpreadsheetClient spreadsheetClient
  * @returns GoogleAppsScript.Content.TextOutput
  *
  * @see https://api.slack.com/interactivity/slash-commands
@@ -171,7 +182,8 @@ const executeInteractivityAndShortcuts = (
 const executeSlashCommands = (
   e: GoogleAppsScript.Events.DoPost,
   config: Config,
-  client: SlackClient,
+  slackClient: SlackClient,
+  spreadsheetClient: SpreadsheetClient,
 ): GoogleAppsScript.Content.TextOutput => {
   const payload = e.parameter as SlashCommandPayloads
   if (payload.token !== config.legacyVerificationToken) {
@@ -182,7 +194,7 @@ const executeSlashCommands = (
   }
 
   if (payload.command === '/start-work') {
-    const controller = new WorkController(client)
+    const controller = new WorkController(slackClient, spreadsheetClient)
     controller.start(payload)
     return ContentService.createTextOutput('')
   }

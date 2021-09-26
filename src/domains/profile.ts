@@ -20,7 +20,7 @@ export class Profile {
     statusText: string,
     statusExpiration: number = 0,
   ) {
-    this._statusEmoji = statusEmoji
+    this._statusEmoji = `:${statusEmoji}:`
     this._statusText = statusText
     this._status_expiration = statusExpiration
   }

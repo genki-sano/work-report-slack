@@ -6,28 +6,33 @@ import { ChatPostMessageGateway } from '@/interfaces/gateways/slack/chat/postMes
 import { ChatUpdateGateway } from '@/interfaces/gateways/slack/chat/update'
 import { UsersSetPresence } from '@/interfaces/gateways/slack/users/setPresence'
 import { UsersSetProfileGateway } from '@/interfaces/gateways/slack/users/setProfile'
+import { ISpreadsheetClient } from '@/interfaces/gateways/spreadsheet/client'
 import { BlockActionsPayloads, SlashCommandPayloads } from '@/types/slack'
+import { UserStatusGateway } from '../gateways/spreadsheet/userStatus'
 
 export class WorkController {
-  private readonly client: ISlackClient
+  private readonly slackClient: ISlackClient
+  private readonly spredsheetClient: ISpreadsheetClient
 
-  constructor(client: ISlackClient) {
-    this.client = client
+  constructor(slackClient: ISlackClient, spredsheetClient: ISpreadsheetClient) {
+    this.slackClient = slackClient
+    this.spredsheetClient = spredsheetClient
   }
 
   public start(payloads: SlashCommandPayloads) {
     const usecase = new WorkStartUsacase(
-      new ChatPostMessageGateway(this.client),
-      new UsersSetPresence(this.client),
+      new ChatPostMessageGateway(this.slackClient),
+      new UsersSetPresence(this.slackClient),
     )
     return usecase.execute(payloads.channel_id, payloads.user_id)
   }
 
   public setLocate(payloads: BlockActionsPayloads) {
     const usecase = new WorkSetLocateUsacase(
-      new ChatPostMessageGateway(this.client),
-      new ChatUpdateGateway(this.client),
-      new UsersSetProfileGateway(this.client),
+      new ChatPostMessageGateway(this.slackClient),
+      new ChatUpdateGateway(this.slackClient),
+      new UsersSetProfileGateway(this.slackClient),
+      new UserStatusGateway(this.spredsheetClient),
     )
 
     if (payloads.actions[0].type !== 'button') {
@@ -45,10 +50,11 @@ export class WorkController {
 
   public end(payloads: BlockActionsPayloads) {
     const usecase = new WorkEndUsacase(
-      new ChatPostMessageGateway(this.client),
-      new ChatUpdateGateway(this.client),
-      new UsersSetPresence(this.client),
-      new UsersSetProfileGateway(this.client),
+      new ChatPostMessageGateway(this.slackClient),
+      new ChatUpdateGateway(this.slackClient),
+      new UsersSetPresence(this.slackClient),
+      new UsersSetProfileGateway(this.slackClient),
+      new UserStatusGateway(this.spredsheetClient),
     )
     return usecase.execute(
       payloads.channel.id,
