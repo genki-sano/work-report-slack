@@ -1,9 +1,10 @@
 import {
-  ACTION_COME_BACK_LUNCH,
   ACTION_END_WORK,
   ACTION_GO_TO_LUNCH,
-  ACTION_GO_TO_WORK,
-  ACTION_WORK_REMOTELY,
+  ACTION_WORK_IN_OFFICE,
+  ACTION_WORK_IN_HOUSE,
+  ACTION_COME_BACK_LUNCH_HOUSE,
+  ACTION_COME_BACK_LUNCH_OFFICE,
 } from '@/constants/action'
 import { Config } from '@/infrastructures/config'
 import { SlackClient } from '@/infrastructures/slack/client'
@@ -126,8 +127,8 @@ const executeInteractivityAndShortcuts = (
   // ボタンクリック・セレクトメニューのアイテム選択イベント
   if (payload.type === 'block_actions') {
     if (
-      payload.actions[0].action_id === ACTION_WORK_REMOTELY ||
-      payload.actions[0].action_id === ACTION_GO_TO_WORK
+      payload.actions[0].action_id === ACTION_WORK_IN_HOUSE ||
+      payload.actions[0].action_id === ACTION_WORK_IN_OFFICE
     ) {
       const controller = new WorkController(slackClient, spreadsheetClient)
       controller.setLocate(payload)
@@ -140,7 +141,10 @@ const executeInteractivityAndShortcuts = (
       return ContentService.createTextOutput('')
     }
 
-    if (payload.actions[0].action_id === ACTION_COME_BACK_LUNCH) {
+    if (
+      payload.actions[0].action_id === ACTION_COME_BACK_LUNCH_HOUSE ||
+      payload.actions[0].action_id === ACTION_COME_BACK_LUNCH_OFFICE
+    ) {
       const controller = new LunchController(slackClient, spreadsheetClient)
       controller.end(payload)
       return ContentService.createTextOutput('')

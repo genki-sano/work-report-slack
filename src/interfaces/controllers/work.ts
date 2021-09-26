@@ -37,14 +37,8 @@ export class WorkController {
       new UserStatusGateway(this.spredsheetClient),
       new MessageGateway(this.spredsheetClient),
     )
-
-    if (payloads.actions[0].type !== 'button') {
-      throw new Error(
-        `Invalid action type detected (type ${payloads.actions[0].type})`,
-      )
-    }
     return usecase.execute(
-      payloads.actions[0].value,
+      payloads.actions[0].action_id,
       payloads.channel.id,
       payloads.user.id,
       payloads.message.ts,

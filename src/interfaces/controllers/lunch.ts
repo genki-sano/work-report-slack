@@ -46,6 +46,7 @@ export class LunchController {
       new MessageGateway(this.spredsheetClient),
     )
     return usecase.execute(
+      payloads.actions[0].action_id,
       payloads.channel.id,
       payloads.user.id,
       payloads.message.ts,

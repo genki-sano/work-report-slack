@@ -10,7 +10,11 @@ import {
   IUserStatusGateway,
   UserStatusType,
 } from '@/applications/repositories/spreadsheet/userStatus'
-import { ACTION_COME_BACK_LUNCH, ACTION_END_WORK } from '@/constants/action'
+import {
+  ACTION_COME_BACK_LUNCH_HOUSE,
+  ACTION_COME_BACK_LUNCH_OFFICE,
+  ACTION_END_WORK,
+} from '@/constants/action'
 import { Profile } from '@/domains/profile'
 
 export class LunchStartUsacase {
@@ -54,6 +58,7 @@ export class LunchStartUsacase {
     this.usersSetProfileRepos.execute({ profile }, userId)
 
     // 対象のchannelに対してメッセージ送信
+    // TODO: 戻るときに出社か在宅か選んでもらう
     this.chatPostMessageRepos.execute({
       channel: channelId,
       blocks: [
@@ -71,11 +76,23 @@ export class LunchStartUsacase {
               type: 'button',
               text: {
                 type: 'plain_text',
-                text: '戻りました',
+                text: '家で再開',
                 emoji: true,
               },
               value: 'come-back-lunch',
-              action_id: ACTION_COME_BACK_LUNCH,
+              style: 'primary',
+              action_id: ACTION_COME_BACK_LUNCH_HOUSE,
+            },
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: '会社で再開',
+                emoji: true,
+              },
+              value: 'come-back-lunch',
+              style: 'danger',
+              action_id: ACTION_COME_BACK_LUNCH_OFFICE,
             },
           ],
         },

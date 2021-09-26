@@ -4,7 +4,7 @@ import {
   IMessageGateway,
   MessageType,
 } from '@/applications/repositories/spreadsheet/message'
-import { ACTION_GO_TO_WORK, ACTION_WORK_REMOTELY } from '@/constants/action'
+import { ACTION_WORK_IN_OFFICE, ACTION_WORK_IN_HOUSE } from '@/constants/action'
 
 export class WorkStartUsacase {
   private readonly chatPostMessageRepos: IChatPostMessageGateway
@@ -48,7 +48,7 @@ export class WorkStartUsacase {
               },
               value: 'work-remotely',
               style: 'primary',
-              action_id: ACTION_WORK_REMOTELY,
+              action_id: ACTION_WORK_IN_HOUSE,
             },
             {
               type: 'button',
@@ -59,7 +59,7 @@ export class WorkStartUsacase {
               },
               value: 'go-to-work',
               style: 'danger',
-              action_id: ACTION_GO_TO_WORK,
+              action_id: ACTION_WORK_IN_OFFICE,
             },
           ],
         },

@@ -9,7 +9,7 @@ import {
   IUserStatusGateway,
   UserStatusType,
 } from '@/applications/repositories/spreadsheet/userStatus'
-import { ACTION_GO_TO_LUNCH } from '@/constants/action'
+import { ACTION_GO_TO_LUNCH, ACTION_WORK_IN_HOUSE } from '@/constants/action'
 import { Profile } from '@/domains/profile'
 
 export class WorkSetLocateUsacase {
@@ -34,18 +34,18 @@ export class WorkSetLocateUsacase {
   }
 
   public execute(
-    selectValue: string | undefined,
+    actionId: string,
     channelId: string,
     userId: string,
     messageTs: string,
   ) {
     // 対象のuserのステータスを選択された値に変更
     const statusEmoji =
-      selectValue === 'work-remotely'
+      actionId === ACTION_WORK_IN_HOUSE
         ? this.userStatusRepos.getIcon(UserStatusType.House)
         : this.userStatusRepos.getIcon(UserStatusType.Office)
     const statusText =
-      selectValue === 'work-remotely'
+      actionId === ACTION_WORK_IN_HOUSE
         ? this.userStatusRepos.getText(UserStatusType.House)
         : this.userStatusRepos.getText(UserStatusType.Office)
     const statusExpiration = 0

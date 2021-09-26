@@ -10,6 +10,7 @@ import {
   IUserStatusGateway,
   UserStatusType,
 } from '@/applications/repositories/spreadsheet/userStatus'
+import { ACTION_COME_BACK_LUNCH_HOUSE } from '@/constants/action'
 import { Profile } from '@/domains/profile'
 
 export class LunchEndUsacase {
@@ -36,13 +37,24 @@ export class LunchEndUsacase {
     this.messageRepos = messageRepos
   }
 
-  public execute(channelId: string, userId: string, messageTs: string) {
+  public execute(
+    actionId: string,
+    channelId: string,
+    userId: string,
+    messageTs: string,
+  ) {
     // 対象のuserのログイン状態をautoに変更
     this.usersSetPresenceRepos.execute({ presence: 'auto' }, userId)
 
     // 対象のuserのステータスを選択された値に変更
-    const statusEmoji = this.userStatusRepos.getIcon(UserStatusType.House)
-    const statusText = this.userStatusRepos.getText(UserStatusType.House)
+    const statusEmoji =
+      actionId === ACTION_COME_BACK_LUNCH_HOUSE
+        ? this.userStatusRepos.getIcon(UserStatusType.House)
+        : this.userStatusRepos.getIcon(UserStatusType.Office)
+    const statusText =
+      actionId === ACTION_COME_BACK_LUNCH_HOUSE
+        ? this.userStatusRepos.getText(UserStatusType.House)
+        : this.userStatusRepos.getText(UserStatusType.Office)
     const statusExpiration = 0
     const profile = new Profile(statusEmoji, statusText, statusExpiration)
     this.usersSetProfileRepos.execute({ profile }, userId)
