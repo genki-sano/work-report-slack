@@ -11,8 +11,11 @@ export class MessageGateway implements IMessageGateway {
     this.client = client
   }
 
-  public getText(messageType: MessageType): string {
+  public getText(
+    messageType: MessageType,
+    sheetName: string = 'テンプレート',
+  ): string {
     const range = `F${messageType + 2}`
-    return this.client.getValue('テンプレート', range)
+    return this.client.getValue(range, sheetName)
   }
 }

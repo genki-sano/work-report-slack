@@ -41,8 +41,9 @@ export class WorkEndUsacase {
     this.usersSetPresenceRepos.execute({ presence: 'away' }, userId)
 
     // 対象のuserのステータスを業務終了に変更
-    const statusEmoji = this.userStatusRepos.getIcon(UserStatusType.End)
-    const statusText = this.userStatusRepos.getText(UserStatusType.End)
+    const userStatus = UserStatusType.End
+    const statusEmoji = this.userStatusRepos.getIcon(userStatus, userId)
+    const statusText = this.userStatusRepos.getText(userStatus, userId)
     // 明日0時までにする
     let nextday = new Date()
     nextday.setDate(nextday.getDate() + 1)
@@ -62,7 +63,7 @@ export class WorkEndUsacase {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: this.messageRepos.getText(MessageType.End),
+            text: this.messageRepos.getText(MessageType.End, userId),
           },
         },
       ],

@@ -11,13 +11,19 @@ export class UserStatusGateway implements IUserStatusGateway {
     this.client = client
   }
 
-  public getIcon(statusType: UserStatusType): string {
+  public getIcon(
+    statusType: UserStatusType,
+    sheetName: string = 'テンプレート',
+  ): string {
     const range = `B${statusType + 2}`
-    return this.client.getValue('テンプレート', range)
+    return this.client.getValue(range, sheetName)
   }
 
-  public getText(statusType: UserStatusType): string {
+  public getText(
+    statusType: UserStatusType,
+    sheetName: string = 'テンプレート',
+  ): string {
     const range = `C${statusType + 2}`
-    return this.client.getValue('テンプレート', range)
+    return this.client.getValue(range, sheetName)
   }
 }

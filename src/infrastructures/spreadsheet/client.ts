@@ -8,11 +8,18 @@ export class SpreadsheetClient implements ISpreadsheetClient {
     this.ss = SpreadsheetApp.openById(sheet_id)
   }
 
-  public getValue(sheet_name: string, range: string): string {
+  public getValue(range: string, sheetName: string): string {
     if (!this.sheet) {
-      const sheet = this.ss.getSheetByName(sheet_name)
+      let sheet = this.ss.getSheetByName(sheetName)
+
+      if (sheetName !== 'テンプレート' && !sheet) {
+        // 独自設定がない場合、テンプレートを使用
+        sheet = this.ss.getSheetByName('テンプレート')
+        sheetName = 'テンプレート'
+      }
+
       if (!sheet) {
-        throw new Error(`not found sheet (sheet_name: ${sheet_name})`)
+        throw new Error(`not found sheet (sheet_name: ${sheetName})`)
       }
 
       this.sheet = sheet

@@ -6,5 +6,5 @@ export enum MessageType {
 }
 
 export interface IMessageGateway {
-  getText(statusType: MessageType): string
+  getText(statusType: MessageType, sheetName?: string): string
 }

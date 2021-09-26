@@ -40,14 +40,12 @@ export class WorkSetLocateUsacase {
     messageTs: string,
   ) {
     // 対象のuserのステータスを選択された値に変更
-    const statusEmoji =
+    const userStatus =
       actionId === ACTION_WORK_IN_HOUSE
-        ? this.userStatusRepos.getIcon(UserStatusType.House)
-        : this.userStatusRepos.getIcon(UserStatusType.Office)
-    const statusText =
-      actionId === ACTION_WORK_IN_HOUSE
-        ? this.userStatusRepos.getText(UserStatusType.House)
-        : this.userStatusRepos.getText(UserStatusType.Office)
+        ? UserStatusType.House
+        : UserStatusType.Office
+    const statusEmoji = this.userStatusRepos.getIcon(userStatus, userId)
+    const statusText = this.userStatusRepos.getText(userStatus, userId)
     const statusExpiration = 0
     const profile = new Profile(statusEmoji, statusText, statusExpiration)
     this.usersSetProfileRepos.execute({ profile }, userId)
@@ -84,7 +82,7 @@ export class WorkSetLocateUsacase {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: this.messageRepos.getText(MessageType.Start),
+            text: this.messageRepos.getText(MessageType.Start, userId),
           },
         },
       ],

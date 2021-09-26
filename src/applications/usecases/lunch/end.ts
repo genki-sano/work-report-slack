@@ -47,14 +47,12 @@ export class LunchEndUsacase {
     this.usersSetPresenceRepos.execute({ presence: 'auto' }, userId)
 
     // 対象のuserのステータスを選択された値に変更
-    const statusEmoji =
+    const userStatus =
       actionId === ACTION_COME_BACK_LUNCH_HOUSE
-        ? this.userStatusRepos.getIcon(UserStatusType.House)
-        : this.userStatusRepos.getIcon(UserStatusType.Office)
-    const statusText =
-      actionId === ACTION_COME_BACK_LUNCH_HOUSE
-        ? this.userStatusRepos.getText(UserStatusType.House)
-        : this.userStatusRepos.getText(UserStatusType.Office)
+        ? UserStatusType.House
+        : UserStatusType.Office
+    const statusEmoji = this.userStatusRepos.getIcon(userStatus, userId)
+    const statusText = this.userStatusRepos.getText(userStatus, userId)
     const statusExpiration = 0
     const profile = new Profile(statusEmoji, statusText, statusExpiration)
     this.usersSetProfileRepos.execute({ profile }, userId)
@@ -67,7 +65,7 @@ export class LunchEndUsacase {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: this.messageRepos.getText(MessageType.Back),
+            text: this.messageRepos.getText(MessageType.Back, userId),
           },
         },
       ],
@@ -82,7 +80,7 @@ export class LunchEndUsacase {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: this.messageRepos.getText(MessageType.Lunch),
+            text: this.messageRepos.getText(MessageType.Lunch, userId),
           },
         },
       ],

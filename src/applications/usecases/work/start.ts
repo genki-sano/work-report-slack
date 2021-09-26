@@ -21,19 +21,19 @@ export class WorkStartUsacase {
     this.messageRepos = messageRepos
   }
 
-  public execute(channel_id: string, user_id: string) {
+  public execute(channelId: string, userId: string) {
     // 対象のuserのログイン状態をautoに変更
-    this.usersSetPresenceRepos.execute({ presence: 'auto' }, user_id)
+    this.usersSetPresenceRepos.execute({ presence: 'auto' }, userId)
 
     // 対象のchannelに対してメッセージ送信
     this.chatPostMessageRepos.execute({
-      channel: channel_id,
+      channel: channelId,
       blocks: [
         {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: this.messageRepos.getText(MessageType.Start),
+            text: this.messageRepos.getText(MessageType.Start, userId),
           },
         },
         {

@@ -6,6 +6,6 @@ export enum UserStatusType {
 }
 
 export interface IUserStatusGateway {
-  getIcon(statusType: UserStatusType): string
-  getText(statusType: UserStatusType): string
+  getIcon(statusType: UserStatusType, sheetName?: string): string
+  getText(statusType: UserStatusType, sheetName?: string): string
 }

@@ -51,8 +51,9 @@ export class LunchStartUsacase {
     this.usersSetPresenceRepos.execute({ presence: 'away' }, userId)
 
     // 対象のuserのステータスを離席中に変更
-    const statusEmoji = this.userStatusRepos.getIcon(UserStatusType.Away)
-    const statusText = this.userStatusRepos.getText(UserStatusType.Away)
+    const userStatus = UserStatusType.Away
+    const statusEmoji = this.userStatusRepos.getIcon(userStatus, userId)
+    const statusText = this.userStatusRepos.getText(userStatus, userId)
     const statusExpiration = 0
     const profile = new Profile(statusEmoji, statusText, statusExpiration)
     this.usersSetProfileRepos.execute({ profile }, userId)
@@ -66,7 +67,7 @@ export class LunchStartUsacase {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: this.messageRepos.getText(MessageType.Lunch),
+            text: this.messageRepos.getText(MessageType.Lunch, userId),
           },
         },
         {
