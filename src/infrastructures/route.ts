@@ -1,7 +1,15 @@
+import {
+  ACTION_COME_BACK_LUNCH,
+  ACTION_END_WORK,
+  ACTION_GO_TO_LUNCH,
+  ACTION_GO_TO_WORK,
+  ACTION_WORK_REMOTELY,
+} from '@/constants/action'
 import { Config } from '@/infrastructures/config'
-
-// GASに設定した各種設定を取っておく
-const config = new Config();
+import { SlackClient } from '@/infrastructures/slack/client'
+import { LunchController } from '@/interfaces/controllers/lunch'
+import { WorkController } from '@/interfaces/controllers/work'
+import { SlashCommandPayloads } from '@/types/slack'
 
 /**
  * Slack からの POST リクエストをハンドリングする関数
@@ -9,159 +17,192 @@ const config = new Config();
  * @param GoogleAppsScript.Events.DoPost e
  * @returns GoogleAppsScript.Content.TextOutput
  */
-export const doPost = (e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.TextOutput => {
+export const doPost = (
+  e: GoogleAppsScript.Events.DoPost,
+): GoogleAppsScript.Content.TextOutput => {
   if (typeof e.postData === 'undefined') {
-    throw new Error('invalid request');
+    throw new Error('invalid request')
   }
+
+  // GASに設定した各種設定を取っておく
+  const config = new Config()
+  // Slack API への接続設定
+  const client = new SlackClient(config.slackBotToken)
 
   if (e.postData.type === 'application/json') {
     // Events API (イベント API / URL 検証リクエスト)
-    return executeEventApi(e);
+    return executeEventApi(e, config)
   }
 
   if (e.postData.type === 'application/x-www-form-urlencoded') {
     if (typeof e.parameters.payload !== 'undefined') {
       // Interactivity & Shortcuts (ボタン操作やモーダル送信、ショートカットなど)
-      return executeInteractivityAndShortcuts(e);
+      return executeInteractivityAndShortcuts(e, config, client)
     }
 
     if (typeof e.parameters.command !== 'undefined') {
       // Slash Commands (スラッシュコマンドの実行)
-      return executeSlashCommands(e);
+      return executeSlashCommands(e, config, client)
     }
   }
 
-  return ContentService.createTextOutput('');
+  // 200 OK を返すことでペイロードを受信したことを Slack に対して伝える
+  return ContentService.createTextOutput('')
 }
 
 /**
  * Events API (イベント API / URL 検証リクエスト)
  *
  * @param GoogleAppsScript.Events.DoPost e
+ * @param Config config
  * @returns GoogleAppsScript.Content.TextOutput
+ *
+ * @see https://api.slack.com/apis/connections/events-api
  */
-const executeEventApi = (e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.TextOutput => {
-  const payload = JSON.parse(e.postData.contents);
+const executeEventApi = (
+  e: GoogleAppsScript.Events.DoPost,
+  config: Config,
+): GoogleAppsScript.Content.TextOutput => {
+  const payload = JSON.parse(e.postData.contents)
   // Verification Token の検証
   if (payload.token !== config.legacyVerificationToken) {
-    throw new Error(`Invalid verification token detected (actual: ${payload.token}, expected: ${config.legacyVerificationToken})`);
+    throw new Error(
+      `Invalid verification token detected (actual: ${payload.token}, expected: ${config.legacyVerificationToken})`,
+    )
   }
 
   // Events API を有効にしたときの URL 検証リクエストへの応答
   if (typeof payload.challenge !== 'undefined') {
-    return ContentService.createTextOutput(payload.challenge);
+    return ContentService.createTextOutput(payload.challenge)
   }
 
-  // -------------------------------------------------------------
-  // TODO: ここにあなたの処理を追加します
-  if (typeof payload.event.channel !== 'undefined') {
-  }
-  // -------------------------------------------------------------
-
-  // 200 OK を返すことでペイロードを受信したことを Slack に対して伝える
-  return ContentService.createTextOutput('');
+  return ContentService.createTextOutput('')
 }
 
 /**
  * Interactivity & Shortcuts (ボタン操作やモーダル送信、ショートカットなど)
  *
  * @param GoogleAppsScript.Events.DoPost e
+ * @param Config config
+ * @param SlackClient client
  * @returns GoogleAppsScript.Content.TextOutput
  *
  * @see https://api.slack.com/reference/interaction-payloads
  */
-const executeInteractivityAndShortcuts = (e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.TextOutput => {
-  const payload = JSON.parse(e.parameters.payload[0]);
+const executeInteractivityAndShortcuts = (
+  e: GoogleAppsScript.Events.DoPost,
+  config: Config,
+  client: SlackClient,
+): GoogleAppsScript.Content.TextOutput => {
+  const payload = JSON.parse(e.parameters.payload[0])
   // Verification Token の検証
   if (payload.token !== config.legacyVerificationToken) {
-    throw new Error(`Invalid verification token detected (actual: ${payload.token}, expected: ${config.legacyVerificationToken})`);
+    throw new Error(
+      `Invalid verification token detected (actual: ${payload.token}, expected: ${config.legacyVerificationToken})`,
+    )
   }
-
-  // -------------------------------------------------------------
-  // TODO: ここにあなたの処理を追加します
 
   // グローバルショートカット
   if (payload.type === 'shortcut') {
-    if (payload.callback_id === 'gas') {
-      // Callback ID が gas のグローバルショートカットへの応答としてモーダルを開く例
-      // callWebApi(token, 'views.open', {
-      //   trigger_id: payload.trigger_id,
-      //   user_id: payload.user.id,
-      //   view: JSON.stringify(modalView)
-      // });
-    }
-
-    return ContentService.createTextOutput('');
+    return ContentService.createTextOutput('')
   }
 
   // メッセージショートカット
   if (payload.type === 'message_action') {
-    if (payload.callback_id === 'gas-msg') {
-      // Callback ID が gas-msg のメッセージショートカットへの応答として
-      // response_url を使って返信を投稿する例（respond のコード例は次のコード例を参照）
-      // respond(payload.response_url, 'Thanks for running a message shortcut!');
-    }
-
-    return ContentService.createTextOutput('');
+    return ContentService.createTextOutput('')
   }
 
   // Block Kit (message 内の blocks) 内の
   // ボタンクリック・セレクトメニューのアイテム選択イベント
   if (payload.type === 'block_actions') {
-    // console.log(`Action data: ${JSON.stringify(payload.actions[0])}`);
-    return ContentService.createTextOutput('');
+    if (
+      payload.actions[0].action_id === ACTION_WORK_REMOTELY ||
+      payload.actions[0].action_id === ACTION_GO_TO_WORK
+    ) {
+      const controller = new WorkController(client)
+      controller.setLocate(payload)
+      return ContentService.createTextOutput('')
+    }
+
+    if (payload.actions[0].action_id === ACTION_GO_TO_LUNCH) {
+      const controller = new LunchController(client)
+      controller.start(payload)
+      return ContentService.createTextOutput('')
+    }
+
+    if (payload.actions[0].action_id === ACTION_COME_BACK_LUNCH) {
+      const controller = new LunchController(client)
+      controller.end(payload)
+      return ContentService.createTextOutput('')
+    }
+
+    if (payload.actions[0].action_id === ACTION_END_WORK) {
+      const controller = new WorkController(client)
+      controller.end(payload)
+      return ContentService.createTextOutput('')
+    }
+
+    return ContentService.createTextOutput('')
   }
 
   // モーダルの submit ボタンのクリックイベント
   if (payload.type === 'view_submission') {
-    if (payload.view.callback_id === 'modal-id') {
-      // モーダルの submit ボタンを押してデータ送信が実行されたときのハンドリング
-      // const stateValues = payload.view.state.values;
-      // console.log(`View submssion data: ${JSON.stringify(stateValues)}`);
-      // 空のボディで応答したときはモーダルを閉じる
-      // response_action で errors / update / push など指定も可能
-      return ContentService.createTextOutput('');
-    }
-
-    return ContentService.createTextOutput('');
+    return ContentService.createTextOutput('')
   }
 
   // モーダルの cancel ボタンのクリックイベント
   if (payload.type === 'view_closed') {
-    return ContentService.createTextOutput('');
+    return ContentService.createTextOutput('')
   }
-  // -------------------------------------------------------------
 
-  // 200 OK を返すことでペイロードを受信したことを Slack に対して伝える
-  return ContentService.createTextOutput('');
+  return ContentService.createTextOutput('')
 }
 
 /**
  * Slash Commands (スラッシュコマンドの実行)
  *
  * @param GoogleAppsScript.Events.DoPost e
+ * @param Config config
+ * @param SlackClient client
  * @returns GoogleAppsScript.Content.TextOutput
  *
  * @see https://api.slack.com/interactivity/slash-commands
  */
-const executeSlashCommands = (e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.TextOutput => {
-  const payload: { [key: string]: any } = {}
-  for (const [key, value] of Object.entries(e.parameters)) {
-    payload[key] = value[0];
-  }
+const executeSlashCommands = (
+  e: GoogleAppsScript.Events.DoPost,
+  config: Config,
+  client: SlackClient,
+): GoogleAppsScript.Content.TextOutput => {
+  const payload = e.parameter as SlashCommandPayloads
   if (payload.token !== config.legacyVerificationToken) {
     // Verification Token の検証
-    throw new Error(`Invalid verification token detected (actual: ${payload.token}, expected: ${config.legacyVerificationToken})`);
+    throw new Error(
+      `Invalid verification token detected (actual: ${payload.token}, expected: ${config.legacyVerificationToken})`,
+    )
   }
 
-  // -------------------------------------------------------------
-  // TODO: ここにあなたの処理を追加します
-  if (payload.command === '/gas') {
-    // '/gas' というスラッシュコマンドのときの処理
-    return ContentService.createTextOutput('Hi there!');
+  if (payload.command === '/start-work') {
+    const controller = new WorkController(client)
+    controller.start(payload)
+    return ContentService.createTextOutput('')
   }
-  // -------------------------------------------------------------
 
-  // 200 OK を返すことでペイロードを受信したことを Slack に対して伝える
-  return ContentService.createTextOutput('');
+  return ContentService.createTextOutput('')
 }
+
+// リクエストの中身を検証するのに使用
+// const testShowRequest = (token: string, channelId: string, payload: any) => {
+//   const response = UrlFetchApp.fetch(
+//     'https://www.slack.com/api/chat.postMessage',
+//     {
+//       method: 'post',
+//       contentType: 'application/x-www-form-urlencoded',
+//       headers: { Authorization: `Bearer ${token}` },
+//       payload: {
+//         channel: channelId,
+//         text: JSON.stringify(payload),
+//       },
+//     },
+//   )
+//   return response
+// }
