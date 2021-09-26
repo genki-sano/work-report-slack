@@ -8,6 +8,7 @@ import { UsersSetProfileGateway } from '@/interfaces/gateways/slack/users/setPro
 import { ISpreadsheetClient } from '@/interfaces/gateways/spreadsheet/client'
 import { BlockActionsPayloads } from '@/types/slack'
 import { UserStatusGateway } from '../gateways/spreadsheet/userStatus'
+import { MessageGateway } from '../gateways/spreadsheet/message'
 
 export class LunchController {
   private readonly slackClient: ISlackClient
@@ -25,6 +26,7 @@ export class LunchController {
       new UsersSetPresence(this.slackClient),
       new UsersSetProfileGateway(this.slackClient),
       new UserStatusGateway(this.spredsheetClient),
+      new MessageGateway(this.spredsheetClient),
     )
     return usecase.execute(
       payloads.channel.id,
@@ -41,6 +43,7 @@ export class LunchController {
       new UsersSetPresence(this.slackClient),
       new UsersSetProfileGateway(this.slackClient),
       new UserStatusGateway(this.spredsheetClient),
+      new MessageGateway(this.spredsheetClient),
     )
     return usecase.execute(
       payloads.channel.id,

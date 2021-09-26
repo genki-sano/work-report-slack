@@ -3,6 +3,10 @@ import { IChatUpdateGateway } from '@/applications/repositories/slack/chat/updat
 import { IUsersSetPresenceGateway } from '@/applications/repositories/slack/users/setPresence'
 import { IUsersSetProfileGateway } from '@/applications/repositories/slack/users/setProfile'
 import {
+  IMessageGateway,
+  MessageType,
+} from '@/applications/repositories/spreadsheet/message'
+import {
   IUserStatusGateway,
   UserStatusType,
 } from '@/applications/repositories/spreadsheet/userStatus'
@@ -14,6 +18,7 @@ export class LunchEndUsacase {
   private readonly usersSetPresenceRepos: IUsersSetPresenceGateway
   private readonly usersSetProfileRepos: IUsersSetProfileGateway
   private readonly userStatusRepos: IUserStatusGateway
+  private readonly messageRepos: IMessageGateway
 
   constructor(
     chatPostMessageRepos: IChatPostMessageGateway,
@@ -21,12 +26,14 @@ export class LunchEndUsacase {
     usersSetPresenceRepos: IUsersSetPresenceGateway,
     usersSetProfileRepos: IUsersSetProfileGateway,
     userStatusRepos: IUserStatusGateway,
+    messageRepos: IMessageGateway,
   ) {
     this.chatPostMessageRepos = chatPostMessageRepos
     this.chatUpdateRepos = chatUpdateRepos
     this.usersSetPresenceRepos = usersSetPresenceRepos
     this.usersSetProfileRepos = usersSetProfileRepos
     this.userStatusRepos = userStatusRepos
+    this.messageRepos = messageRepos
   }
 
   public execute(channelId: string, userId: string, messageTs: string) {
@@ -48,7 +55,7 @@ export class LunchEndUsacase {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: '戻りました！',
+            text: this.messageRepos.getText(MessageType.Back),
           },
         },
       ],
@@ -63,7 +70,7 @@ export class LunchEndUsacase {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: '昼休憩にしますー :woman-raising-hand:',
+            text: this.messageRepos.getText(MessageType.Lunch),
           },
         },
       ],

@@ -1,17 +1,24 @@
 import { IChatPostMessageGateway } from '@/applications/repositories/slack/chat/postMessage'
 import { IUsersSetPresenceGateway } from '@/applications/repositories/slack/users/setPresence'
+import {
+  IMessageGateway,
+  MessageType,
+} from '@/applications/repositories/spreadsheet/message'
 import { ACTION_GO_TO_WORK, ACTION_WORK_REMOTELY } from '@/constants/action'
 
 export class WorkStartUsacase {
   private readonly chatPostMessageRepos: IChatPostMessageGateway
   private readonly usersSetPresenceRepos: IUsersSetPresenceGateway
+  private readonly messageRepos: IMessageGateway
 
   constructor(
     chatPostMessageRepos: IChatPostMessageGateway,
     usersSetPresenceRepos: IUsersSetPresenceGateway,
+    messageRepos: IMessageGateway,
   ) {
     this.chatPostMessageRepos = chatPostMessageRepos
     this.usersSetPresenceRepos = usersSetPresenceRepos
+    this.messageRepos = messageRepos
   }
 
   public execute(channel_id: string, user_id: string) {
@@ -26,7 +33,7 @@ export class WorkStartUsacase {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: '業務を開始します :sunny:',
+            text: this.messageRepos.getText(MessageType.Start),
           },
         },
         {

@@ -2,6 +2,10 @@ import { IChatPostMessageGateway } from '@/applications/repositories/slack/chat/
 import { IChatUpdateGateway } from '@/applications/repositories/slack/chat/update'
 import { IUsersSetProfileGateway } from '@/applications/repositories/slack/users/setProfile'
 import {
+  IMessageGateway,
+  MessageType,
+} from '@/applications/repositories/spreadsheet/message'
+import {
   IUserStatusGateway,
   UserStatusType,
 } from '@/applications/repositories/spreadsheet/userStatus'
@@ -13,17 +17,20 @@ export class WorkSetLocateUsacase {
   private readonly chatUpdateRepos: IChatUpdateGateway
   private readonly usersSetProfileRepos: IUsersSetProfileGateway
   private readonly userStatusRepos: IUserStatusGateway
+  private readonly messageRepos: IMessageGateway
 
   constructor(
     chatPostMessageRepos: IChatPostMessageGateway,
     chatUpdateRepos: IChatUpdateGateway,
     usersSetProfileRepos: IUsersSetProfileGateway,
     userStatusRepos: IUserStatusGateway,
+    messageRepos: IMessageGateway,
   ) {
     this.chatPostMessageRepos = chatPostMessageRepos
     this.chatUpdateRepos = chatUpdateRepos
     this.usersSetProfileRepos = usersSetProfileRepos
     this.userStatusRepos = userStatusRepos
+    this.messageRepos = messageRepos
   }
 
   public execute(
@@ -77,7 +84,7 @@ export class WorkSetLocateUsacase {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: '業務を開始します :sunny:',
+            text: this.messageRepos.getText(MessageType.Start),
           },
         },
       ],
