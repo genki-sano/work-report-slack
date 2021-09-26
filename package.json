@@ -1,6 +1,7 @@
 {
   "name": "work-report-slack",
   "version": "0.0.1",
+  "author": "genki-sano",
   "description": "This repository is a SlackApp for work reporting.",
   "main": "src/index.ts",
   "license": "MIT",
