@@ -2,6 +2,7 @@ import {
   IUserStatusGateway,
   UserStatusType,
 } from '@/applications/repositories/spreadsheet/userStatus'
+import { SHEET_NAME_DEFAULT } from '@/constants/spreadsheet'
 import { ISpreadsheetClient } from '@/interfaces/gateways/spreadsheet/client'
 
 export class UserStatusGateway implements IUserStatusGateway {
@@ -13,7 +14,7 @@ export class UserStatusGateway implements IUserStatusGateway {
 
   public getIcon(
     statusType: UserStatusType,
-    sheetName: string = 'テンプレート',
+    sheetName: string = SHEET_NAME_DEFAULT,
   ): string {
     const range = `B${statusType + 2}`
     return this.client.getValue(range, sheetName)
@@ -21,7 +22,7 @@ export class UserStatusGateway implements IUserStatusGateway {
 
   public getText(
     statusType: UserStatusType,
-    sheetName: string = 'テンプレート',
+    sheetName: string = SHEET_NAME_DEFAULT,
   ): string {
     const range = `C${statusType + 2}`
     return this.client.getValue(range, sheetName)

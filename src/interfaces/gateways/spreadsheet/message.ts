@@ -2,6 +2,7 @@ import {
   IMessageGateway,
   MessageType,
 } from '@/applications/repositories/spreadsheet/message'
+import { SHEET_NAME_DEFAULT } from '@/constants/spreadsheet'
 import { ISpreadsheetClient } from '@/interfaces/gateways/spreadsheet/client'
 
 export class MessageGateway implements IMessageGateway {
@@ -13,7 +14,7 @@ export class MessageGateway implements IMessageGateway {
 
   public getText(
     messageType: MessageType,
-    sheetName: string = 'テンプレート',
+    sheetName: string = SHEET_NAME_DEFAULT,
   ): string {
     const range = `F${messageType + 2}`
     return this.client.getValue(range, sheetName)
