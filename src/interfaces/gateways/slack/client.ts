@@ -24,5 +24,6 @@ export interface ISlackClient {
     method: string,
     headers: WebAPICallHeaders,
     options: WebAPICallOptions,
+    isUserToken?: boolean,
   ): WebAPICallResult
 }

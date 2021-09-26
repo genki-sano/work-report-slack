@@ -1,10 +1,12 @@
 export class Config {
   readonly legacyVerificationToken: string
+  readonly slackUserToken: string
   readonly slackBotToken: string
   readonly spreadsheetId: string
 
   constructor() {
     this.legacyVerificationToken = this.getProperty('SLACK_VERIFICATION_TOKEN')
+    this.slackUserToken = this.getProperty('SLACK_USER_TOKEN')
     this.slackBotToken = this.getProperty('SLACK_BOT_TOKEN')
     this.spreadsheetId = this.getProperty('SPREADSHEET_ID')
   }

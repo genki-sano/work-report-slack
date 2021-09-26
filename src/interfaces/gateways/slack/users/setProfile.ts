@@ -37,6 +37,6 @@ export class UsersSetProfileGateway implements IUsersSetProfileGateway {
     const headers: WebAPICallHeaders = {
       'X-Slack-User': userId,
     }
-    return this.client.apiCall(this.method, headers, options)
+    return this.client.apiCall(this.method, headers, options, true)
   }
 }

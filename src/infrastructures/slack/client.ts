@@ -6,11 +6,13 @@ import {
 } from '@/interfaces/gateways/slack/client'
 
 export class SlackClient implements ISlackClient {
-  private readonly token: string
+  private readonly botToken: string
+  private readonly userToken: string
   private readonly baseUrl: string
 
-  constructor(token: string) {
-    this.token = token
+  constructor(botToken: string, userToken: string) {
+    this.botToken = botToken
+    this.userToken = userToken
     this.baseUrl = 'https://slack.com/api/'
   }
 
@@ -18,13 +20,14 @@ export class SlackClient implements ISlackClient {
     method: string,
     headers: WebAPICallHeaders,
     options: WebAPICallOptions,
+    isUserToken: boolean = false,
   ): WebAPICallResult {
     const url = `${this.baseUrl}${method}`
     const requestOptions: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
       method: 'post',
       contentType: 'application/json; charset=utf-8',
       headers: {
-        Authorization: `Bearer ${this.token}`,
+        Authorization: `Bearer ${isUserToken ? this.userToken : this.botToken}`,
         ...headers,
       },
       payload: JSON.stringify(options),

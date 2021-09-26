@@ -29,7 +29,10 @@ export const doPost = (
   // GASに設定した各種設定を取っておく
   const config = new Config()
   // Slack API への接続設定
-  const slackClient = new SlackClient(config.slackBotToken)
+  const slackClient = new SlackClient(
+    config.slackBotToken,
+    config.slackUserToken,
+  )
   // Spreadsheet API への接続設定
   const spreadsheetClient = new SpreadsheetClient(config.spreadsheetId)
 
