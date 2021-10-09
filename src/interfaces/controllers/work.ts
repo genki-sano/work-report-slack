@@ -20,16 +20,16 @@ export class WorkController {
     this.spredsheetClient = spredsheetClient
   }
 
-  public start(payloads: SlashCommandPayloads) {
+  public start(payloads: SlashCommandPayloads): void {
     const usecase = new WorkStartUsacase(
       new ChatPostMessageGateway(this.slackClient),
       new UsersSetPresence(this.slackClient),
       new MessageGateway(this.spredsheetClient),
     )
-    return usecase.execute(payloads.channel_id, payloads.user_id)
+    usecase.execute(payloads.channel_id, payloads.user_id)
   }
 
-  public setLocate(payloads: BlockActionsPayloads) {
+  public setLocate(payloads: BlockActionsPayloads): void {
     const usecase = new WorkSetLocateUsacase(
       new ChatPostMessageGateway(this.slackClient),
       new ChatUpdateGateway(this.slackClient),
@@ -37,7 +37,7 @@ export class WorkController {
       new UserStatusGateway(this.spredsheetClient),
       new MessageGateway(this.spredsheetClient),
     )
-    return usecase.execute(
+    usecase.execute(
       payloads.actions[0].action_id,
       payloads.channel.id,
       payloads.user.id,
@@ -45,7 +45,7 @@ export class WorkController {
     )
   }
 
-  public end(payloads: BlockActionsPayloads) {
+  public end(payloads: BlockActionsPayloads): void {
     const usecase = new WorkEndUsacase(
       new ChatPostMessageGateway(this.slackClient),
       new ChatUpdateGateway(this.slackClient),
@@ -54,10 +54,6 @@ export class WorkController {
       new UserStatusGateway(this.spredsheetClient),
       new MessageGateway(this.spredsheetClient),
     )
-    return usecase.execute(
-      payloads.channel.id,
-      payloads.user.id,
-      payloads.message.ts,
-    )
+    usecase.execute(payloads.channel.id, payloads.user.id, payloads.message.ts)
   }
 }

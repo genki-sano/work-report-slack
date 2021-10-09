@@ -20,7 +20,7 @@ export class SlackClient implements ISlackClient {
     method: string,
     headers: WebAPICallHeaders,
     options: WebAPICallOptions,
-    isUserToken: boolean = false,
+    isUserToken = false,
   ): WebAPICallResult {
     const url = `${this.baseUrl}${method}`
     const requestOptions: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {

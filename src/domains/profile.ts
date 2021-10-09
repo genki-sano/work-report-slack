@@ -15,11 +15,7 @@ export class Profile {
     return this._status_expiration
   }
 
-  constructor(
-    statusEmoji: string,
-    statusText: string,
-    statusExpiration: number = 0,
-  ) {
+  constructor(statusEmoji: string, statusText: string, statusExpiration = 0) {
     this._statusEmoji = `:${statusEmoji}:`
     this._statusText = statusText
     this._status_expiration = statusExpiration

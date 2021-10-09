@@ -38,7 +38,7 @@ export class WorkSetLocateUsacase {
     channelId: string,
     userId: string,
     messageTs: string,
-  ) {
+  ): void {
     // 対象のuserのステータスを選択された値に変更
     const userStatus =
       actionId === ACTION_WORK_IN_HOUSE

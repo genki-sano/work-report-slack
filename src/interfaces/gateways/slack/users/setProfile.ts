@@ -9,9 +9,10 @@ import {
 } from '@/interfaces/gateways/slack/client'
 
 type Compact<A> = { [K in keyof A]: A[K] }
-type Overwrite<A extends object, B extends object> = Compact<
-  Omit<A, keyof B> & B
->
+type Overwrite<
+  A extends Record<string, unknown>,
+  B extends Record<string, unknown>,
+> = Compact<Omit<A, keyof B> & B>
 
 export class UsersSetProfileGateway implements IUsersSetProfileGateway {
   private readonly client: ISlackClient

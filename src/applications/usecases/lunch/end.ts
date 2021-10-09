@@ -42,7 +42,7 @@ export class LunchEndUsacase {
     channelId: string,
     userId: string,
     messageTs: string,
-  ) {
+  ): void {
     // 対象のuserのログイン状態をautoに変更
     this.usersSetPresenceRepos.execute({ presence: 'auto' }, userId)
 

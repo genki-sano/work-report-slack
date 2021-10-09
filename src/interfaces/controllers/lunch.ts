@@ -19,7 +19,7 @@ export class LunchController {
     this.spredsheetClient = spredsheetClient
   }
 
-  public start(payloads: BlockActionsPayloads) {
+  public start(payloads: BlockActionsPayloads): void {
     const usecase = new LunchStartUsacase(
       new ChatPostMessageGateway(this.slackClient),
       new ChatUpdateGateway(this.slackClient),
@@ -28,7 +28,7 @@ export class LunchController {
       new UserStatusGateway(this.spredsheetClient),
       new MessageGateway(this.spredsheetClient),
     )
-    return usecase.execute(
+    usecase.execute(
       payloads.channel.id,
       payloads.user.id,
       payloads.message.thread_ts,
@@ -36,7 +36,7 @@ export class LunchController {
     )
   }
 
-  public end(payloads: BlockActionsPayloads) {
+  public end(payloads: BlockActionsPayloads): void {
     const usecase = new LunchEndUsacase(
       new ChatPostMessageGateway(this.slackClient),
       new ChatUpdateGateway(this.slackClient),
@@ -45,7 +45,7 @@ export class LunchController {
       new UserStatusGateway(this.spredsheetClient),
       new MessageGateway(this.spredsheetClient),
     )
-    return usecase.execute(
+    usecase.execute(
       payloads.actions[0].action_id,
       payloads.channel.id,
       payloads.user.id,

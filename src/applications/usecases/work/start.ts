@@ -21,7 +21,7 @@ export class WorkStartUsacase {
     this.messageRepos = messageRepos
   }
 
-  public execute(channelId: string, userId: string) {
+  public execute(channelId: string, userId: string): void {
     // 対象のuserのログイン状態をautoに変更
     this.usersSetPresenceRepos.execute({ presence: 'auto' }, userId)
 

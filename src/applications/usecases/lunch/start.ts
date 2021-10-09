@@ -46,7 +46,7 @@ export class LunchStartUsacase {
     userId: string,
     threadTs: string,
     messageTs: string,
-  ) {
+  ): void {
     // 対象のuserのログイン状態をawayに変更
     this.usersSetPresenceRepos.execute({ presence: 'away' }, userId)
 

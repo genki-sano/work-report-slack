@@ -36,7 +36,7 @@ export class WorkEndUsacase {
     this.messageRepos = messageRepos
   }
 
-  public execute(channelId: string, userId: string, messageTs: string) {
+  public execute(channelId: string, userId: string, messageTs: string): void {
     // 対象のuserのログイン状態をawayに変更
     this.usersSetPresenceRepos.execute({ presence: 'away' }, userId)
 
@@ -45,7 +45,7 @@ export class WorkEndUsacase {
     const statusEmoji = this.userStatusRepos.getIcon(userStatus, userId)
     const statusText = this.userStatusRepos.getText(userStatus, userId)
     // 明日0時までにする
-    let nextday = new Date()
+    const nextday = new Date()
     nextday.setDate(nextday.getDate() + 1)
     nextday.setHours(0)
     nextday.setMinutes(0)
